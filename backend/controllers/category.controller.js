@@ -53,6 +53,7 @@ const getCategoryByName = async (req, res) => {
   }
 };
 
+// create category
 const createCategory = async (req, res) => {
   try {
     const { name, color, todos } = req.body;
@@ -124,9 +125,35 @@ const updateCategory = async (req, res) => {
   }
 };
 
+// category delete
+const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByIdAndDelete(id);
+
+    if (!category) {
+      return res.status(globalmsges.NotFoundCode).json({
+        success: globalmsges.NotSuccess,
+        message: globalmsges.ItemNotFound,
+      });
+    }
+
+    return res.status(globalmsges.SuccessCode).json({
+      success: globalmsges.Success,
+      message: globalmsges.ItemDeletedMsg,
+      data: category,
+    });
+  } catch (error) {
+    return res
+      .status(globalmsges.ServerCode)
+      .json({ message: globalmsges.ServerErrorMessage, error: error.message });
+  }
+};
+
 module.exports = {
   getAllCategories,
   getCategoryByName,
   createCategory,
   updateCategory,
+  deleteCategory
 };
