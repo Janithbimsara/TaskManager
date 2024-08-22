@@ -65,6 +65,7 @@ const createOrFindCategory = async (catName) => {
   return category;
 };
 
+// create a new todo
 const createTodo = async (req, res) => {
   try {
     const { title, description, categories } = req.body;
@@ -113,6 +114,65 @@ const createTodo = async (req, res) => {
   }
 };
 
+// update a Todo
+const updateTodo = async (req, res) => {
+  try {
+    const { title, description, categories, completed } = req.body;
+    if (categories && !Array.isArray(categories)) {
+      return res.status(globalmsges.BadCode).json({
+        success: globalmsges.NotSuccess,
+        message: globalmsges.InvalidDataError,
+      });
+    }
+    const categoryIds = categories
+      ? await Promise.all(
+          categories.map(async (catName) => {
+            const category = await createOrFindCategory(catName);
+            return category._id;
+          })
+        )
+      : undefined;
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        completed,
+        category: categoryIds,
+      },
+      { new: true, runValidators: true }
+    );
+    if (!updatedTodo) {
+      return res.status(globalmsges.NotFoundCode).json({
+        success: globalmsges.NotSuccess,
+        message: globalmsges.ItemNotFound,
+        data: null,
+      });
+    }
+    if (categories) {
+      await Category.updateMany(
+        { todos: updatedTodo._id },
+        { $pull: { todos: updatedTodo._id } }
+      );
+      await Category.updateMany(
+        { _id: { $in: categoryIds } },
+        { $push: { todos: updatedTodo._id } }
+      );
+    }
+    return res.status(globalmsges.SuccessCode).json({
+      success: globalmsges.Success,
+      message: globalmsges.UpdateSuccessMessage,
+      data: updatedTodo,
+    });
+  } catch (error) {
+    return res.status(globalmsges.ServerCode).json({
+      message: globalmsges.ServerErrorMessage,
+      error: error.message,
+    });
+  }
+};
+
 // Delete a Todo
 const deleteTodo = async (req, res) => {
   try {
@@ -144,4 +204,10 @@ const deleteTodo = async (req, res) => {
   }
 };
 
-module.exports = { getAllTodos, getTodoById, createTodo, deleteTodo };
+module.exports = {
+  getAllTodos,
+  getTodoById,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+};
