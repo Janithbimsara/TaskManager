@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const TodoSchema = new mongoose.Schema(
   {
-    titile: {
+    title: {
       type: String,
       required: true,
     },

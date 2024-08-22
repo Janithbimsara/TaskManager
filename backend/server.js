@@ -2,6 +2,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const express = require("express");
 const categoryRouter = require('./routes/category.routes')
+const todoRouter = require('./routes/todo.routes')
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/v1/category',categoryRouter)
+app.use('/v1/todo',todoRouter)
 
 const startServer = () => {
   const PORT = process.env.PORT || 8080;
