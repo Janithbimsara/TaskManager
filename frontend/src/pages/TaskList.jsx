@@ -2,9 +2,9 @@
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid2";
 import Masonry from "@mui/lab/Masonry";
-import TaskCard from "../components/TaskCard";
+import TaskCard from "../features/todos/components/TaskCard"
 
-import { taskData } from "../data/tasks";
+import { taskData } from "../mocks/fixtures/tasks";
 
 function TaskList() {
   return (
